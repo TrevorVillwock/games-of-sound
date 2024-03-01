@@ -3,10 +3,13 @@ import json
 from instruments import HiHat, Snare, Kick
 import customtkinter as ctk
 from functools import partial
-from gui import set_bpm, set_tuplet, set_sample_speed, toggle_delay, toggle_reverb
+from gui import set_bpm, set_main_volume, set_tuplet, set_sample_speed, toggle_delay, toggle_reverb
 
 BPM = 124
 PAD = 10
+
+MAIN_BUTTON_WIDTH = 100
+MAIN_BUTTON_HEIGHT = 100
 
 # starts pyo server which will create all audio
 s = Server().boot()
@@ -14,6 +17,12 @@ s.start()
 
 # starts customtkinter window containing all GUI elements
 root = ctk.CTk()
+width = root.winfo_screenwidth()
+height = root.winfo_screenheight()
+
+root.geometry("%dx%d" % (width, height))
+root.title("Polyrhthmic Drum Machine")
+root.attributes("-fullscreen", True)
 
 with open("settings.json", 'r') as file:
     settings = json.load(file)
@@ -78,9 +87,19 @@ kick = Events(
 
 instruments = [hihat1, hihat2, hihat3, snare, kick]
 
-bpm_label = ctk.CTkLabel(root, text='BPM')
+main_control_bar = ctk.CTkFrame(root, width=1000, height=100)
+
+play_button = ctk.CTkButton(main_control_bar, text="Play", width=MAIN_BUTTON_WIDTH, height=MAIN_BUTTON_HEIGHT, fg_color="green")
+stop_button = ctk.CTkButton(main_control_bar, text="Stop", width=MAIN_BUTTON_WIDTH, height=MAIN_BUTTON_HEIGHT, fg_color="grey")
+record_button = ctk.CTkButton(main_control_bar, text="Record", width=MAIN_BUTTON_WIDTH, height=MAIN_BUTTON_HEIGHT, fg_color="red")
+
+bpm_label = ctk.CTkLabel(main_control_bar, text='BPM')
 wrapped_set_bpm = partial(set_bpm, instruments=instruments)
-bpm_slider = ctk.CTkSlider(root, command=wrapped_set_bpm, from_=60, to=200)
+bpm_slider = ctk.CTkSlider(main_control_bar, command=wrapped_set_bpm, from_=60, to=200)
+
+main_volume_label = ctk.CTkLabel(main_control_bar, text='Volume')
+wrapped_set_main_volume = partial(set_main_volume)
+main_volume_slider = ctk.CTkSlider(main_control_bar, command=wrapped_set_main_volume, from_=60, to=200)
 
 hihat1_delay_button = ctk.CTkButton(root, text="Delay", width=PAD, height=2, fg_color="black")
 hihat1_delay_toggle = partial(toggle_delay, button=hihat1_delay_button, instrument=hihat1)
@@ -132,10 +151,22 @@ hihat3_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
 hihat3_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
 hihat3_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
 
-# bpm_label.pack(pady=10)
-# bpm_slider.pack(pady=PAD)
-bpm_label.grid(column=0, row=0, columnspan=10)
-bpm_slider.grid(column=0, row=2, columnspan=10)
+root.columnconfigure(0, weight=1)
+main_control_bar.grid(column=0, row=0, sticky="ew")
+
+# distributes elements in main control bar
+# for i in range(0, 12):
+#     main_control_bar.columnconfigure(i, weight=1)
+
+play_button.grid(column=0, row=0, columnspan=1, padx=5)
+stop_button.grid(column=1, row=0, columnspan=1, padx=5)
+record_button.grid(column=2, row=0, columnspan=1, padx=5)
+
+bpm_label.grid(column=3, row=0, columnspan=1)
+bpm_slider.grid(column=4, row=0, columnspan=5)
+
+main_volume_label.grid(column=10, row=0, columnspan=1)
+main_volume_slider.grid(column=11, row=0, columnspan=1)
 
 # hihat1_delay_button.pack(pady=20)
 # hihat1_reverb_button.pack(pady=20)
@@ -160,7 +191,5 @@ bpm_slider.grid(column=0, row=2, columnspan=10)
 # hihat3_tuplet_slider.pack(pady=PAD)
 # hihat3_tuning_slider.pack(pady=PAD)
 # hihat3_tuning_slider_label.pack(pady=PAD)
-
-
 
 root.mainloop()

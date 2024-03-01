@@ -13,6 +13,9 @@ def set_bpm(bpm, instruments):
         thread.start()
     for thread in threads:
         thread.join()
+        
+def set_main_volume():
+    pass
 
 def set_tuplet(time, instrument):
     instrument["beat"] = EventSeq([1 / time])
