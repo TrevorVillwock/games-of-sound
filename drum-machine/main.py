@@ -82,9 +82,6 @@ bpm_label = ctk.CTkLabel(root, text='BPM')
 wrapped_set_bpm = partial(set_bpm, instruments=instruments)
 bpm_slider = ctk.CTkSlider(root, command=wrapped_set_bpm, from_=60, to=200)
 
-bpm_label.pack(pady=10)
-bpm_slider.pack(pady=PAD)
-
 hihat1_delay_button = ctk.CTkButton(root, text="Delay", width=PAD, height=2, fg_color="black")
 hihat1_delay_toggle = partial(toggle_delay, button=hihat1_delay_button, instrument=hihat1)
 hihat1_delay_button.configure(command=hihat1_delay_toggle)
@@ -93,22 +90,13 @@ hihat1_reverb_button = ctk.CTkButton(root, text="Reverb", width=PAD, height=2, f
 hihat1_reverb_toggle = partial(toggle_reverb, button=hihat1_reverb_button, instrument=hihat1)
 hihat1_reverb_button.configure(command=hihat1_reverb_toggle)
 
-hihat1_delay_button.pack(pady=20)
-hihat1_reverb_button.pack(pady=20)
-
 hihat1_tuplet_slider_label = ctk.CTkLabel(root, text='HiHat 1 tuplet')
 hihat1_set_tuplet = partial(set_tuplet, instrument=hihat1)
 hihat1_tuplet_slider = ctk.CTkSlider(root, command=hihat1_set_tuplet, from_=1, to=12)
 
-hihat1_tuplet_slider_label.pack(pady=PAD)
-hihat1_tuplet_slider.pack(pady=PAD)
-
 hihat1_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 1 tuning')
 hihat1_set_sample_speed = partial(set_sample_speed, instrument=hihat1)
 hihat1_tuning_slider = ctk.CTkSlider(root, command=hihat1_set_sample_speed, from_=0.1, to=2.0)
-
-hihat1_tuning_slider_label.pack(pady=PAD)
-hihat1_tuning_slider.pack(pady=PAD)
 
 hihat2_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
 hihat2_delay_toggle = partial(toggle_delay, button=hihat2_delay_button, instrument=hihat2)
@@ -118,23 +106,14 @@ hihat2_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg
 hihat2_reverb_toggle = partial(toggle_reverb, button=hihat2_reverb_button, instrument=hihat2)
 hihat2_reverb_button.configure(command=hihat2_reverb_toggle)
 
-hihat2_delay_button.pack(pady=20)
-hihat2_reverb_button.pack(pady=20)
-
 hihat2_tuplet_slider_label = ctk.CTkLabel(root, text='HiHat 2 tuplet')
 hihat2_set_tuplet = partial(set_tuplet, instrument=hihat2)
 hihat2_tuplet_slider = ctk.CTkSlider(root, command=hihat2_set_tuplet, from_=1, to=12)
 hihat2_tuplet_slider.configure(command=hihat2_set_tuplet)
 
-hihat2_tuplet_slider_label.pack(pady=PAD)
-hihat2_tuplet_slider.pack(pady=PAD)
-
 hihat2_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 2 tuning')
 hihat2_set_sample_speed = partial(set_sample_speed, instrument=hihat2)
 hihat2_tuning_slider = ctk.CTkSlider(root, command=hihat2_set_sample_speed, from_=0.1, to=2.0)
-
-hihat2_tuning_slider_label.pack(pady=PAD)
-hihat2_tuning_slider.pack(pady=PAD)
 
 hihat3_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
 hihat3_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
@@ -144,20 +123,44 @@ hihat3_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg
 hihat3_reverb_toggle = partial(toggle_reverb, button=hihat3_reverb_button, instrument=hihat3)
 hihat3_reverb_button.configure(command=hihat3_reverb_toggle)
 
-hihat3_delay_button.pack(pady=20)
-hihat3_reverb_button.pack(pady=20)
-
 hihat3_tuplet_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuplet')
 hihat3_set_tuplet = partial(set_tuplet, instrument=hihat3)
 hihat3_tuplet_slider = ctk.CTkSlider(root, command=hihat3_set_tuplet, from_=1, to=12)
 hihat3_tuplet_slider.configure(command=hihat3_set_tuplet)
-hihat3_tuplet_slider_label.pack(pady=PAD)
-hihat3_tuplet_slider.pack(pady=PAD)
 
 hihat3_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
-hihat3_tuning_slider_label.pack(pady=PAD)
 hihat3_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
 hihat3_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
-hihat3_tuning_slider.pack(pady=PAD)
+
+# bpm_label.pack(pady=10)
+# bpm_slider.pack(pady=PAD)
+bpm_label.grid(column=0, row=0, columnspan=10)
+bpm_slider.grid(column=0, row=2, columnspan=10)
+
+# hihat1_delay_button.pack(pady=20)
+# hihat1_reverb_button.pack(pady=20)
+# hihat1_tuning_slider_label.pack(pady=PAD)
+# hihat1_tuning_slider.pack(pady=PAD)
+# hihat1_tuplet_slider_label.pack(pady=PAD)
+# hihat1_tuplet_slider.pack(pady=PAD)
+
+# hihat2_delay_button.pack(pady=20)
+# hihat2_reverb_button.pack(pady=20)
+# hihat2_tuning_slider_label.pack(pady=PAD)
+# hihat2_tuning_slider.pack(pady=PAD)
+# hihat2_tuplet_slider_label.pack(pady=PAD)
+# hihat2_tuplet_slider.pack(pady=PAD)
+
+
+# hihat3_delay_button.pack(pady=20)
+# hihat3_reverb_button.pack(pady=20)
+# hihat3_delay_button.pack(pady=20)
+# hihat3_reverb_button.pack(pady=20)
+# hihat3_tuplet_slider_label.pack(pady=PAD)
+# hihat3_tuplet_slider.pack(pady=PAD)
+# hihat3_tuning_slider.pack(pady=PAD)
+# hihat3_tuning_slider_label.pack(pady=PAD)
+
+
 
 root.mainloop()

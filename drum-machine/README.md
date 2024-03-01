@@ -1,5 +1,6 @@
 TODO:
 
+Format nicely
 Fix delay sound
 Use computer keayboard to control things
     - d for delay
