@@ -182,7 +182,6 @@ main_volume_slider.grid(column=11, row=0, columnspan=1)
 # hihat2_tuplet_slider_label.pack(pady=PAD)
 # hihat2_tuplet_slider.pack(pady=PAD)
 
-
 # hihat3_delay_button.pack(pady=20)
 # hihat3_reverb_button.pack(pady=20)
 # hihat3_delay_button.pack(pady=20)
