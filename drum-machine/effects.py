@@ -1,3 +1,5 @@
+### Currently not in use ###
+
 from pyo import EventInstrument, SmoothDelay, Sig, Selector, Freeverb, Phasor, Expseg, ButLP, SfPlayer, Server, Events, EventSeq, EventChoice
 
 class EffectsUnit():

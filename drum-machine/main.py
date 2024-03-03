@@ -1,4 +1,4 @@
-from pyo import Server, Events, EventSeq, Sig
+from pyo import Server, Events, EventSeq, Sig, Mixer
 import json
 from instruments import HiHat, Snare, Kick
 import customtkinter as ctk
@@ -24,12 +24,12 @@ s.start()
 
 # starts customtkinter window containing all GUI elements
 root = ctk.CTk()
-width = root.winfo_screenwidth()
-height = root.winfo_screenheight()
+width = root.winfo_screenwidth() - 500
+height = root.winfo_screenheight() - 500
 
 root.geometry("%dx%d" % (width, height))
 root.title("Polyrhthmic Drum Machine")
-root.attributes("-fullscreen", True)
+# root.attributes("-fullscreen", True)
 
 with open("settings.json", 'r') as file:
     settings = json.load(file)
@@ -92,6 +92,15 @@ kick = Events(
     reverb_is_on=Sig(0)
 ).play()
 
+# not working yet
+# need mixer_out argument for Events?
+# mixer = Mixer(chnls=5, mul=0.5).out()
+# mixer.addInput(0, hihat1)
+# mixer.addInput(1, hihat2)
+# mixer.addInput(2, hihat3)
+# mixer.addInput(3, snare)
+# mixer.addInput(4, kick)
+
 instruments = [hihat1, hihat2, hihat3, snare, kick]
 
 main_control_bar = ctk.CTkFrame(root, width=1000, height=100)
@@ -140,6 +149,7 @@ for i in range(0, 16):
 
 all_sequencers = [hihat1_sequencer, hihat2_sequencer, hihat3_sequencer, snare_sequencer, kick_sequencer]
 
+# hihat1 
 hihat1_delay_button = ctk.CTkButton(hihat1_frame, text="Delay", width=PAD, height=2, fg_color="black")
 hihat1_delay_toggle = partial(toggle_delay, button=hihat1_delay_button, instrument=hihat1)
 hihat1_delay_button.configure(command=hihat1_delay_toggle)
@@ -156,7 +166,8 @@ hihat1_tuning_slider_label = ctk.CTkLabel(hihat1_frame, text='Tuning')
 hihat1_set_sample_speed = partial(set_sample_speed, instrument=hihat1)
 hihat1_tuning_slider = ctk.CTkSlider(hihat1_frame, command=hihat1_set_sample_speed, from_=0.1, to=2.0)
 
-hihat2_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
+# hihat2
+hihat2_delay_button = ctk.CTkButton(hihat2_frame, text="Delay", width=10, height=2, fg_color="black")
 hihat2_delay_toggle = partial(toggle_delay, button=hihat2_delay_button, instrument=hihat2)
 hihat2_delay_button.configure(command=hihat2_delay_toggle)
 
@@ -173,6 +184,7 @@ hihat2_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 2 tuning')
 hihat2_set_sample_speed = partial(set_sample_speed, instrument=hihat2)
 hihat2_tuning_slider = ctk.CTkSlider(root, command=hihat2_set_sample_speed, from_=0.1, to=2.0)
 
+# hihat 3
 hihat3_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
 hihat3_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
 hihat3_delay_button.configure(command=hihat3_delay_toggle)
@@ -190,25 +202,41 @@ hihat3_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
 hihat3_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
 hihat3_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
 
-# root.columnconfigure(0, weight=1)
+# snare
+snare_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
+snare_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
+snare_delay_button.configure(command=hihat3_delay_toggle)
 
-# distributes elements in main control bar
-# for i in range(0, 12):
-#     main_control_bar.columnconfigure(i, weight=1)
+snare_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg_color="black")
+snare_reverb_toggle = partial(toggle_reverb, button=hihat3_reverb_button, instrument=hihat3)
+snare_reverb_button.configure(command=hihat3_reverb_toggle)
 
-# Unsuccessful GPT-4 distribution:
+snare_subdivision_slider_label = ctk.CTkLabel(root, text='HiHat 3 subdivision')
+snare_set_subdivision = partial(set_subdivision, instrument=hihat3)
+snare_subdivision_slider = ctk.CTkSlider(root, command=hihat3_set_subdivision, from_=1, to=12)
+snare_subdivision_slider.configure(command=hihat3_set_subdivision)
 
-# for i in range(14):  # Adjusted for extra columns for spacing
-#     main_control_bar.columnconfigure(i, weight=1)
+snare_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
+snare_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
+snare_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
 
-# Adjust grid placements with added padding columns
-# play_button.grid(column=1, row=0, padx=5)  # Start from column 1 instead of 0
-# stop_button.grid(column=2, row=0, padx=5)
-# record_button.grid(column=3, row=0, padx=5)
-# bpm_label.grid(column=4, row=0)
-# bpm_slider.grid(column=5, row=0, columnspan=5)
-# main_volume_label.grid(column=11, row=0)
-# main_volume_slider.grid(column=12, row=0)
+# kick
+kick_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
+kick_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
+kick_delay_button.configure(command=hihat3_delay_toggle)
+
+kick_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg_color="black")
+kick_reverb_toggle = partial(toggle_reverb, button=hihat3_reverb_button, instrument=hihat3)
+kick_reverb_button.configure(command=hihat3_reverb_toggle)
+
+kick_subdivision_slider_label = ctk.CTkLabel(root, text='HiHat 3 subdivision')
+kick_set_subdivision = partial(set_subdivision, instrument=hihat3)
+kick_subdivision_slider = ctk.CTkSlider(root, command=hihat3_set_subdivision, from_=1, to=12)
+kick_subdivision_slider.configure(command=hihat3_set_subdivision)
+
+kick_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
+kick_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
+kick_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
 
 main_control_bar.grid(column=0, row=0, sticky="ew")
 play_button.grid(column=0, row=0, columnspan=1, padx=5)
@@ -230,31 +258,65 @@ hihat1_tuning_slider.grid(row=1, column=4)
 hihat1_delay_button.grid(row=1, column=5)
 hihat1_reverb_button.grid(row=1, column=6)
 
+hihat2_frame.grid(row=2, column=0, sticky="w")
+hihat2_label.grid(row=2, column=0, sticky="w")
+hihat2_subdivision_slider_label.grid(row=2, column=1)
+hihat2_subdivision_slider.grid(row=2, column=2)
+hihat2_tuning_slider_label.grid(row=2, column=3)
+hihat2_tuning_slider.grid(row=2, column=4)
+hihat2_delay_button.grid(row=2, column=5)
+hihat1_reverb_button.grid(row=2, column=6)
+
+hihat3_frame.grid(row=3, column=0, sticky="w")
+hihat3_label.grid(row=3, column=0, sticky="w")
+hihat3_subdivision_slider_label.grid(row=3, column=1)
+hihat3_subdivision_slider.grid(row=3, column=2)
+hihat3_tuning_slider_label.grid(row=3, column=3)
+hihat3_tuning_slider.grid(row=3, column=4)
+hihat3_delay_button.grid(row=3, column=5)
+hihat3_reverb_button.grid(row=3, column=6)
+
+snare_frame.grid(row=4, column=0, sticky="w")
+snare_label.grid(row=4, column=0, sticky="w")
+snare_subdivision_slider_label.grid(row=4, column=1)
+snare_subdivision_slider.grid(row=4, column=2)
+snare_tuning_slider_label.grid(row=4, column=3)
+snare_tuning_slider.grid(row=4, column=4)
+snare_delay_button.grid(row=4, column=5)
+snare_reverb_button.grid(row=4, column=6)
+
+kick_frame.grid(row=5, column=0, sticky="w")
+kick_label.grid(row=5, column=0, sticky="w")
+kick_subdivision_slider_label.grid(row=5, column=1)
+kick_subdivision_slider.grid(row=5, column=2)
+kick_tuning_slider_label.grid(row=5, column=3)
+kick_tuning_slider.grid(row=5, column=4)
+kick_delay_button.grid(row=5, column=5)
+kick_reverb_button.grid(row=5, column=6)
+
 for i in range(0, 5):
     for j in range(0, 16):
+        print(f"row {i} column {j}")
         all_sequencers[i][j].grid(row=i, column=j)
 
 root.mainloop()
 
-# hihat1_delay_button.pack(pady=20)
-# hihat1_reverb_button.pack(pady=20)
-# hihat1_tuning_slider_label.pack(pady=PAD)
-# hihat1_tuning_slider.pack(pady=PAD)
-# hihat1_subdivision_slider_label.pack(pady=PAD)
-# hihat1_subdivision_slider.pack(pady=PAD)
+# root.columnconfigure(0, weight=1)
 
-# hihat2_delay_button.pack(pady=20)
-# hihat2_reverb_button.pack(pady=20)
-# hihat2_tuning_slider_label.pack(pady=PAD)
-# hihat2_tuning_slider.pack(pady=PAD)
-# hihat2_subdivision_slider_label.pack(pady=PAD)
-# hihat2_subdivision_slider.pack(pady=PAD)
+# distributes elements in main control bar
+# for i in range(0, 12):
+#     main_control_bar.columnconfigure(i, weight=1)
 
-# hihat3_delay_button.pack(pady=20)
-# hihat3_reverb_button.pack(pady=20)
-# hihat3_delay_button.pack(pady=20)
-# hihat3_reverb_button.pack(pady=20)
-# hihat3_subdivision_slider_label.pack(pady=PAD)
-# hihat3_subdivision_slider.pack(pady=PAD)
-# hihat3_tuning_slider.pack(pady=PAD)
-# hihat3_tuning_slider_label.pack(pady=PAD)
+# Unsuccessful GPT-4 distribution:
+
+# for i in range(14):  # Adjusted for extra columns for spacing
+#     main_control_bar.columnconfigure(i, weight=1)
+
+# Adjust grid placements with added padding columns
+# play_button.grid(column=1, row=0, padx=5)  # Start from column 1 instead of 0
+# stop_button.grid(column=2, row=0, padx=5)
+# record_button.grid(column=3, row=0, padx=5)
+# bpm_label.grid(column=4, row=0)
+# bpm_slider.grid(column=5, row=0, columnspan=5)
+# main_volume_label.grid(column=11, row=0)
+# main_volume_slider.grid(column=12, row=0)
