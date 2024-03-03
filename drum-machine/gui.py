@@ -17,7 +17,7 @@ def set_bpm(bpm, instruments):
 def set_main_volume():
     pass
 
-def set_tuplet(time, instrument):
+def set_subdivision(time, instrument):
     instrument["beat"] = EventSeq([1 / time])
     
 def set_sample_speed(speed, instrument):
@@ -46,3 +46,13 @@ def toggle_delay(button, instrument):
     else:
         button.configure(fg_color="black")
         instrument["delay_is_on"].setValue(0)
+        
+def toggle_sequencer_step(button, instrument):
+    # print(instrument)
+    current_color = button.cget("fg_color")
+    if current_color == "black":
+        button.configure(fg_color="purple")
+        instrument["volume"].setValue(1)
+    else:
+        button.configure(fg_color="purple")
+        instrument["volume"].setValue(0)

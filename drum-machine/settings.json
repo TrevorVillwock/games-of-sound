@@ -1,10 +1,10 @@
 {
-    "take_number": 58,
+    "take_number": 110,
     "presets": {
         "1": {
             "bpm": 120,
             "hihat1": {
-                "tuplet": 3,
+                "subdivision": 3,
                 "rhythm": [
                     1,
                     1,
@@ -16,7 +16,7 @@
                 "reverb": 0
             },
             "hihat2": {
-                "tuplet": 2,
+                "subdivision": 2,
                 "rhythm": [
                     1,
                     1,
@@ -28,7 +28,7 @@
                 "reverb": 0
             },
             "hihat3": {
-                "tuplet": 2,
+                "subdivision": 2,
                 "rhythm": [
                     1,
                     1,
@@ -40,7 +40,7 @@
                 "reverb": 0
             },
             "snare": {
-                "tuplet": 2,
+                "subdivision": 2,
                 "rhythm": [
                     1,
                     1,
@@ -52,7 +52,7 @@
                 "reverb": 0
             },
             "kick": {
-                "tuplet": 2,
+                "subdivision": 2,
                 "rhythm": [
                     1,
                     1,

@@ -1,8 +1,7 @@
 TODO:
 
-Format nicely
-Fix delay sound
-Use computer keayboard to control things
+Center main controls
+Use computer keyboard to control things
     - d for delay
     - r for reverb
 Map mouse to things
