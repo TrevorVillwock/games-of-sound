@@ -303,33 +303,14 @@ kick_tuning_slider.grid(row=5, column=4)
 kick_delay_button.grid(row=5, column=5)
 kick_reverb_button.grid(row=5, column=6)
 
+for i in range(0, 5):
+    for j in range(0, 16):
+        print(f"row {2*(i+1)} column {j}")
+        all_sequencers[i][j].grid(row=2*(i+1), column=j)
+
 root.mainloop()
 
-# 
-
-# for i in range(2, 5):
-#     for j in range(0, 16):
-#         print(f"row {i} column {j}")
-#         all_sequencers[i][j].grid(row=i, column=j)
-
-
-
-# root.columnconfigure(0, weight=1)
-
-# distributes elements in main control bar
-# for i in range(0, 12):
-#     main_control_bar.columnconfigure(i, weight=1)
-
-# Unsuccessful GPT-4 distribution:
-
-# for i in range(14):  # Adjusted for extra columns for spacing
-#     main_control_bar.columnconfigure(i, weight=1)
-
-# Adjust grid placements with added padding columns
-# play_button.grid(column=1, row=0, padx=5)  # Start from column 1 instead of 0
-# stop_button.grid(column=2, row=0, padx=5)
-# record_button.grid(column=3, row=0, padx=5)
-# bpm_label.grid(column=4, row=0)
-# bpm_slider.grid(column=5, row=0, columnspan=5)
-# main_volume_label.grid(column=11, row=0)
-# main_volume_slider.grid(column=12, row=0)
+"""
+Goal: add rows 2, 4, 6, 8, 10
+16 squares each, indexed 0-15
+"""
