@@ -1,5 +1,6 @@
 TODO:
 
+Make volume slider work - need to figure out why Mixer isn't working
 Center main controls
 Use computer keyboard to control things
     - d for delay

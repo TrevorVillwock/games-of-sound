@@ -42,7 +42,9 @@ print(presets["1"]["hihat1"]["subdivision"])
 
 with open("settings.json", 'w') as file:
     json.dump(settings, file, indent=4)
-            
+
+mixer = Mixer(chnls=5, mul=0.5).out()
+
 hihat1 = Events(
     instr=HiHat,
     beat=1/presets["1"]["hihat1"]["subdivision"],
@@ -50,7 +52,8 @@ hihat1 = Events(
     bpm=bpm,
     sample_speed=0.7,
     delay_is_on=Sig(0),
-    reverb_is_on=Sig(0)
+    reverb_is_on=Sig(0),
+    mixer=mixer
 ).play()
 
 hihat2 = Events(
@@ -60,7 +63,8 @@ hihat2 = Events(
     bpm=bpm,
     sample_speed=1.0,
     delay_is_on=Sig(0),
-    reverb_is_on=Sig(0)
+    reverb_is_on=Sig(0),
+    mixer=mixer
 ).play()
 
 hihat3 = Events(
@@ -70,7 +74,8 @@ hihat3 = Events(
     bpm=bpm,
     sample_speed=1.0,
     delay_is_on=Sig(0),
-    reverb_is_on=Sig(0)
+    reverb_is_on=Sig(0),
+    mixer=mixer
 ).play()
  
 snare = Events(
@@ -79,7 +84,8 @@ snare = Events(
     amp=EventSeq([0, 0, 1, 0, 0, 0, 1, 0]), # amp = amplitude = volume
     bpm=bpm,
     delay_is_on=Sig(0),
-    reverb_is_on=Sig(0)
+    reverb_is_on=Sig(0),
+    mixer=mixer
 ).play()
 
 kick = Events(
@@ -89,17 +95,19 @@ kick = Events(
                   1, 0, 0, 0, 1, 0, 0, 1]),
     bpm=bpm,
     delay_is_on=Sig(0),
-    reverb_is_on=Sig(0)
+    reverb_is_on=Sig(0),
+    mixer=mixer
 ).play()
 
 # not working yet
-# need mixer_out argument for Events?
-# mixer = Mixer(chnls=5, mul=0.5).out()
 # mixer.addInput(0, hihat1)
 # mixer.addInput(1, hihat2)
 # mixer.addInput(2, hihat3)
 # mixer.addInput(3, snare)
 # mixer.addInput(4, kick)
+
+for i in range (0, 4):
+    mixer.setAmp(i, 0, 0.5)
 
 instruments = [hihat1, hihat2, hihat3, snare, kick]
 
@@ -171,73 +179,74 @@ hihat2_delay_button = ctk.CTkButton(hihat2_frame, text="Delay", width=10, height
 hihat2_delay_toggle = partial(toggle_delay, button=hihat2_delay_button, instrument=hihat2)
 hihat2_delay_button.configure(command=hihat2_delay_toggle)
 
-hihat2_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg_color="black")
+hihat2_reverb_button = ctk.CTkButton(hihat2_frame, text="Reverb", width=10, height=2, fg_color="black")
 hihat2_reverb_toggle = partial(toggle_reverb, button=hihat2_reverb_button, instrument=hihat2)
 hihat2_reverb_button.configure(command=hihat2_reverb_toggle)
 
-hihat2_subdivision_slider_label = ctk.CTkLabel(root, text='HiHat 2 subdivision')
+hihat2_subdivision_slider_label = ctk.CTkLabel(hihat2_frame, text='Subdivision')
 hihat2_set_subdivision = partial(set_subdivision, instrument=hihat2)
-hihat2_subdivision_slider = ctk.CTkSlider(root, command=hihat2_set_subdivision, from_=1, to=12)
+hihat2_subdivision_slider = ctk.CTkSlider(hihat2_frame, command=hihat2_set_subdivision, from_=1, to=12)
 hihat2_subdivision_slider.configure(command=hihat2_set_subdivision)
 
-hihat2_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 2 tuning')
+hihat2_tuning_slider_label = ctk.CTkLabel(hihat2_frame, text='Tuning')
 hihat2_set_sample_speed = partial(set_sample_speed, instrument=hihat2)
-hihat2_tuning_slider = ctk.CTkSlider(root, command=hihat2_set_sample_speed, from_=0.1, to=2.0)
+hihat2_tuning_slider = ctk.CTkSlider(hihat2_frame, command=hihat2_set_sample_speed, from_=0.1, to=2.0)
 
 # hihat 3
-hihat3_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
+hihat3_delay_button = ctk.CTkButton(hihat3_frame, text="Delay", width=10, height=2, fg_color="black")
 hihat3_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
 hihat3_delay_button.configure(command=hihat3_delay_toggle)
 
-hihat3_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg_color="black")
+hihat3_reverb_button = ctk.CTkButton(hihat3_frame, text="Reverb", width=10, height=2, fg_color="black")
 hihat3_reverb_toggle = partial(toggle_reverb, button=hihat3_reverb_button, instrument=hihat3)
 hihat3_reverb_button.configure(command=hihat3_reverb_toggle)
 
-hihat3_subdivision_slider_label = ctk.CTkLabel(root, text='HiHat 3 subdivision')
+hihat3_subdivision_slider_label = ctk.CTkLabel(hihat3_frame, text='Subdivision')
 hihat3_set_subdivision = partial(set_subdivision, instrument=hihat3)
-hihat3_subdivision_slider = ctk.CTkSlider(root, command=hihat3_set_subdivision, from_=1, to=12)
+hihat3_subdivision_slider = ctk.CTkSlider(hihat3_frame, command=hihat3_set_subdivision, from_=1, to=12)
 hihat3_subdivision_slider.configure(command=hihat3_set_subdivision)
 
-hihat3_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
+hihat3_tuning_slider_label = ctk.CTkLabel(hihat3_frame, text='Tuning')
 hihat3_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
-hihat3_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
+hihat3_tuning_slider = ctk.CTkSlider(hihat3_frame, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
 
 # snare
-snare_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
-snare_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
-snare_delay_button.configure(command=hihat3_delay_toggle)
+snare_delay_button = ctk.CTkButton(snare_frame, text="Delay", width=10, height=2, fg_color="black")
+snare_delay_toggle = partial(toggle_delay, button=snare_delay_button, instrument=snare)
+snare_delay_button.configure(command=snare_delay_toggle)
 
-snare_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg_color="black")
-snare_reverb_toggle = partial(toggle_reverb, button=hihat3_reverb_button, instrument=hihat3)
-snare_reverb_button.configure(command=hihat3_reverb_toggle)
+snare_reverb_button = ctk.CTkButton(snare_frame, text="Reverb", width=10, height=2, fg_color="black")
+snare_reverb_toggle = partial(toggle_reverb, button=snare_reverb_button, instrument=snare)
+snare_reverb_button.configure(command=snare_reverb_toggle)
 
-snare_subdivision_slider_label = ctk.CTkLabel(root, text='HiHat 3 subdivision')
-snare_set_subdivision = partial(set_subdivision, instrument=hihat3)
-snare_subdivision_slider = ctk.CTkSlider(root, command=hihat3_set_subdivision, from_=1, to=12)
-snare_subdivision_slider.configure(command=hihat3_set_subdivision)
+snare_subdivision_slider_label = ctk.CTkLabel(snare_frame, text='Subdivision')
+snare_set_subdivision = partial(set_subdivision, instrument=snare)
+snare_subdivision_slider = ctk.CTkSlider(snare_frame, command=snare_set_subdivision, from_=1, to=12)
+snare_subdivision_slider.configure(command=snare_set_subdivision)
 
-snare_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
-snare_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
-snare_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
+snare_tuning_slider_label = ctk.CTkLabel(snare_frame, text='Tuning')
+snare_set_sample_speed = partial(set_sample_speed, instrument=snare)
+snare_tuning_slider = ctk.CTkSlider(snare_frame, command=snare_set_sample_speed, from_=0.1, to=2.0)
 
 # kick
-kick_delay_button = ctk.CTkButton(root, text="Delay", width=10, height=2, fg_color="black")
-kick_delay_toggle = partial(toggle_delay, button=hihat3_delay_button, instrument=hihat3)
-kick_delay_button.configure(command=hihat3_delay_toggle)
+kick_delay_button = ctk.CTkButton(kick_frame, text="Delay", width=10, height=2, fg_color="black")
+kick_delay_toggle = partial(toggle_delay, button=kick_delay_button, instrument=kick)
+kick_delay_button.configure(command=kick_delay_toggle)
 
-kick_reverb_button = ctk.CTkButton(root, text="Reverb", width=10, height=2, fg_color="black")
-kick_reverb_toggle = partial(toggle_reverb, button=hihat3_reverb_button, instrument=hihat3)
-kick_reverb_button.configure(command=hihat3_reverb_toggle)
+kick_reverb_button = ctk.CTkButton(kick_frame, text="Reverb", width=10, height=2, fg_color="black")
+kick_reverb_toggle = partial(toggle_reverb, button=kick_reverb_button, instrument=kick)
+kick_reverb_button.configure(command=kick_reverb_toggle)
 
-kick_subdivision_slider_label = ctk.CTkLabel(root, text='HiHat 3 subdivision')
-kick_set_subdivision = partial(set_subdivision, instrument=hihat3)
-kick_subdivision_slider = ctk.CTkSlider(root, command=hihat3_set_subdivision, from_=1, to=12)
-kick_subdivision_slider.configure(command=hihat3_set_subdivision)
+kick_subdivision_slider_label = ctk.CTkLabel(kick_frame, text='Subdivision')
+kick_set_subdivision = partial(set_subdivision, instrument=kick)
+kick_subdivision_slider = ctk.CTkSlider(kick_frame, command=kick_set_subdivision, from_=1, to=12)
+kick_subdivision_slider.configure(command=kick_set_subdivision)
 
-kick_tuning_slider_label = ctk.CTkLabel(root, text='HiHat 3 tuning')
-kick_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
-kick_tuning_slider = ctk.CTkSlider(root, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
+kick_tuning_slider_label = ctk.CTkLabel(kick_frame, text='Tuning')
+kick_set_sample_speed = partial(set_sample_speed, instrument=kick)
+kick_tuning_slider = ctk.CTkSlider(kick_frame, command=kick_set_sample_speed, from_=0.1, to=2.0)
 
+# arrange gui elements
 main_control_bar.grid(column=0, row=0, sticky="ew")
 play_button.grid(column=0, row=0, columnspan=1, padx=5)
 stop_button.grid(column=1, row=0, columnspan=1, padx=5)
@@ -265,7 +274,7 @@ hihat2_subdivision_slider.grid(row=2, column=2)
 hihat2_tuning_slider_label.grid(row=2, column=3)
 hihat2_tuning_slider.grid(row=2, column=4)
 hihat2_delay_button.grid(row=2, column=5)
-hihat1_reverb_button.grid(row=2, column=6)
+hihat2_reverb_button.grid(row=2, column=6)
 
 hihat3_frame.grid(row=3, column=0, sticky="w")
 hihat3_label.grid(row=3, column=0, sticky="w")
@@ -294,12 +303,16 @@ kick_tuning_slider.grid(row=5, column=4)
 kick_delay_button.grid(row=5, column=5)
 kick_reverb_button.grid(row=5, column=6)
 
-for i in range(0, 5):
-    for j in range(0, 16):
-        print(f"row {i} column {j}")
-        all_sequencers[i][j].grid(row=i, column=j)
-
 root.mainloop()
+
+# 
+
+# for i in range(2, 5):
+#     for j in range(0, 16):
+#         print(f"row {i} column {j}")
+#         all_sequencers[i][j].grid(row=i, column=j)
+
+
 
 # root.columnconfigure(0, weight=1)
 
