@@ -1,0 +1,433 @@
+diff --git a/README.md b/README.md
+index e69de29..f85a86a 100644
+--- a/README.md
++++ b/README.md
+@@ -0,0 +1 @@
++Run these projects from the command line by navigating to the relevant directory and then running `python3 main.py`.
+\ No newline at end of file
+diff --git a/drum-machine/__pycache__/gui.cpython-311.pyc b/drum-machine/__pycache__/gui.cpython-311.pyc
+index 8fffbf6..d3dcb17 100644
+Binary files a/drum-machine/__pycache__/gui.cpython-311.pyc and b/drum-machine/__pycache__/gui.cpython-311.pyc differ
+diff --git a/drum-machine/__pycache__/instruments.cpython-311.pyc b/drum-machine/__pycache__/instruments.cpython-311.pyc
+index b2b1388..bbf4fb2 100644
+Binary files a/drum-machine/__pycache__/instruments.cpython-311.pyc and b/drum-machine/__pycache__/instruments.cpython-311.pyc differ
+diff --git a/drum-machine/gui.py b/drum-machine/gui.py
+index db5c657..9e0cc2c 100644
+--- a/drum-machine/gui.py
++++ b/drum-machine/gui.py
+@@ -1,6 +1,4 @@
+-import tkinter as tk
+-import customtkinter as ctk
+-from pyo import Server, Events, EventSeq
++from pyo import EventSeq
+ from threading import Thread
+ 
+ def set_bpm(bpm, instruments):
+@@ -20,8 +18,8 @@ def set_main_volume():
+ def set_subdivision(time, instrument):
+     instrument["beat"] = EventSeq([1 / time])
+     
+-def set_sample_speed(speed, instrument):
+-    instrument["sample_speed"] = EventSeq([speed])
++def set_sample_speed(tuning, instrument):
++    instrument["tuning"] = EventSeq([tuning])
+ 
+ def toggle_reverb(button, instrument):
+     # print(button)
+@@ -55,4 +53,6 @@ def toggle_sequencer_step(button, instrument):
+         instrument["volume"].setValue(1)
+     else:
+         button.configure(fg_color="purple")
+-        instrument["volume"].setValue(0)
+\ No newline at end of file
++        instrument["volume"].setValue(0)
++        
++
+diff --git a/drum-machine/instruments.py b/drum-machine/instruments.py
+index a8667ef..1b6a5dc 100644
+--- a/drum-machine/instruments.py
++++ b/drum-machine/instruments.py
+@@ -1,4 +1,4 @@
+-from pyo import EventInstrument, SmoothDelay, Sig, Selector, Freeverb, Phasor, Expseg, ButLP, SfPlayer, Server, Events, EventSeq, EventChoice
++from pyo import EventInstrument, SmoothDelay, Selector, Freeverb, ButLP, SfPlayer, Fader
+ 
+ class Instrument(EventInstrument):
+     def __init__(self, **args):
+@@ -17,18 +17,22 @@ class Instrument(EventInstrument):
+ class HiHat(EventInstrument):
+     def __init__(self, **args):
+         EventInstrument.__init__(self, **args)
++        # print(vars(self.env))
+         try:
+-            self.osc = SfPlayer("./samples/hihat/MA_CRLV_Hat_Closed_One_Shot_Zip.wav", mul=self.env, speed=self.sample_speed)
++            self.osc = SfPlayer("./samples/hihat/MA_CRLV_Hat_Closed_One_Shot_Zip.wav", mul=self.env, speed=self.tuning)
+         except Exception as e:
+             pass
+         
+         try:
++            # print("Hihat constructor")
++            self.env = Fader(fadein=0.01, fadeout=0.1)
+             self.filt = ButLP(self.osc, freq=5000)
+             self.delay = SmoothDelay(self.filt, delay=0.7, feedback=0.7)
+             self.delay_selector = Selector([self.osc, self.delay], self.delay_is_on) 
+             self.reverb = Freeverb(self.delay_selector)
+-            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on) # .out()
++            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on).out()
+             self.mixer.addInput(0, self.reverb_selector)
++            self.current_step = 0
+             print(self.mixer)
+         except Exception as e:
+             pass
+@@ -37,15 +41,16 @@ class Snare(Instrument):
+     def __init__(self, **args):
+         super().__init__(**args)
+         self.sample_speed = 1.0
+-        self.osc = SfPlayer("./samples/snare/rhh_snare_one_shot_mid_short_old.wav", mul=self.env, speed=self.sample_speed)
++        self.osc = SfPlayer("./samples/snare/rhh_snare_one_shot_mid_short_old.wav", mul=self.env, speed=self.tuning)
+         
+         try:
+             self.filt = ButLP(self.osc, freq=5000)
+             self.delay = SmoothDelay(self.filt, delay=0.333, feedback=0.7)
+             self.delay_selector = Selector([self.osc, self.delay], self.delay_is_on) 
+             self.reverb = Freeverb(self.delay_selector)
+-            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on) # .out()
++            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on).out()
+             self.mixer.addInput(1, self.reverb_selector)
++            self.current_step = 0
+             print(self.mixer)
+         except Exception as e:
+             pass
+@@ -54,15 +59,16 @@ class Kick(Instrument):
+     def __init__(self, **args):
+         super().__init__(**args)
+         self.sample_speed = 1.0
+-        self.osc = SfPlayer("./samples/kick/FL_LOFI_Kit09_Kick.wav", mul=self.env, speed=self.sample_speed)  
++        self.osc = SfPlayer("./samples/kick/FL_LOFI_Kit09_Kick.wav", mul=self.env, speed=self.tuning)  
+         
+         try:
+             self.filt = ButLP(self.osc, freq=5000)
+             self.delay = SmoothDelay(self.filt, delay=0.333, feedback=0.7)
+             self.delay_selector = Selector([self.osc, self.delay], self.delay_is_on) 
+             self.reverb = Freeverb(self.delay_selector)
+-            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on) # .out()
++            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on).out()
+             self.mixer.addInput(2, self.reverb_selector)
++            self.current_step = 0
+             print(self.mixer)
+         except Exception as e:
+             pass
+\ No newline at end of file
+diff --git a/drum-machine/log.txt b/drum-machine/log.txt
+index a434191..5b3c820 100644
+--- a/drum-machine/log.txt
++++ b/drum-machine/log.txt
+@@ -1,4 +1,3 @@
+ Pyo warning: Portaudio input device `MacBook Air Microphone` has fewer channels (1) than requested (2).
+ Pyo warning: Portmidi warning: no midi device found!
+ Portmidi closed.
+-3
+diff --git a/drum-machine/main.py b/drum-machine/main.py
+index fc7a2b8..9643338 100644
+--- a/drum-machine/main.py
++++ b/drum-machine/main.py
+@@ -1,4 +1,4 @@
+-from pyo import Server, Events, EventSeq, Sig, Mixer
++from pyo import Server, Events, EventSeq, Sig, Mixer, EventCall
+ import json
+ from instruments import HiHat, Snare, Kick
+ import customtkinter as ctk
+@@ -9,9 +9,12 @@ PAD = 10
+ MAIN_BUTTON_WIDTH = 100
+ MAIN_BUTTON_HEIGHT = 100
+ SEQUENCER_BUTTON_HEIGHT = 100
++SLIDER_WIDTH = 100
+ 
+ bpm = 124
+ 
++selected_preset = "1"
++
+ hihat1_sequencer_button_width = 100
+ hihat2_sequencer_button_width = 100
+ hihat3_sequencer_button_width = 100
+@@ -38,33 +41,75 @@ s.recordOptions(filename = f"./drum_machine_take{settings['take_number']}.wav")
+ 
+ settings['take_number'] = settings['take_number'] + 1
+ presets = settings["presets"]
+-print(presets["1"]["hihat1"]["subdivision"])
+ 
+ with open("settings.json", 'w') as file:
+     json.dump(settings, file, indent=4)
+ 
+ mixer = Mixer(chnls=5, mul=0.5).out()
+ 
++hihat1_frame = ctk.CTkFrame(root, width=1000, height=100)
++hihat1_label = ctk.CTkLabel(hihat1_frame, text="Hihat 1", padx=10)
++
++hihat2_frame = ctk.CTkFrame(root, width=1000, height=100)
++hihat2_label = ctk.CTkLabel(hihat2_frame, text="Hihat 2", padx=10)
++
++hihat3_frame = ctk.CTkFrame(root, width=1000, height=100)
++hihat3_label = ctk.CTkLabel(hihat3_frame, text="Hihat 3", padx=10)
++
++snare_frame = ctk.CTkFrame(root, width=1000, height=100)
++snare_label = ctk.CTkLabel(snare_frame, text="Snare", padx=10)
++
++kick_frame = ctk.CTkFrame(root, width=1000, height=100)
++kick_label = ctk.CTkLabel(kick_frame, text="Kick", padx=10)
++
++# the steps of the sequencer are buttons 
++# so that they can be clicked to turn them on and off
++hihat1_sequencer = []
++hihat2_sequencer = []
++hihat3_sequencer = []
++snare_sequencer = []
++kick_sequencer = []
++
++for i in range(0, 16):
++    hihat1_sequencer.append(ctk.CTkButton(hihat1_frame, text="", width=hihat1_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT, fg_color="grey"))
++    hihat2_sequencer.append(ctk.CTkButton(hihat2_frame, text="", width=hihat2_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
++    hihat3_sequencer.append(ctk.CTkButton(hihat3_frame, text="", width=hihat3_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
++    snare_sequencer.append(ctk.CTkButton(snare_frame, text="", width=snare_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
++    kick_sequencer.append(ctk.CTkButton(kick_frame, text="", width=kick_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
++    
++sequencer_step_counts = {"hihat1": 0, "hihat2": 0, "hihat3": 0, "snare": 0, "kick": 0}
++
++def advance_sequencer(sequencer, sequencer_step_counts):
++    all_sequencers[sequencer][sequencer_step_counts[sequencer]].fg_color = "gray"
++    sequencer_step_counts[sequencer] += 1
++    all_sequencers[sequencer][sequencer_step_counts[sequencer]].fg_color = "blue"
++
++# all_sequencers = [hihat1_sequencer, hihat2_sequencer, hihat3_sequencer, snare_sequencer, kick_sequencer]
++all_sequencers = {"hihat1": hihat1_sequencer, "hihat2": hihat2_sequencer, "hihat3": hihat3_sequencer, "snare": snare_sequencer, "kick": kick_sequencer}
++
+ hihat1 = Events(
+     instr=HiHat,
+-    beat=1/presets["1"]["hihat1"]["subdivision"],
++    beat=1/presets[selected_preset]["hihat1"]["subdivision"],
+     amp=1,
+-    bpm=bpm,
+-    sample_speed=0.7,
++    bpm=presets[selected_preset]["bpm"],
++    tuning=presets[selected_preset]["hihat1"]["tuning"],
+     delay_is_on=Sig(0),
+     reverb_is_on=Sig(0),
+-    mixer=mixer
++    mixer=mixer,
++    sequencer=hihat1_sequencer,
++    advance_sequencer=EventCall(advance_sequencer, "hihat1", sequencer_step_counts)
+ ).play()
+ 
+ hihat2 = Events(
+     instr=HiHat,
+-    beat=0.5,
++    beat=1/presets[selected_preset]["hihat2"]["subdivision"],
+     amp=EventSeq([1, 0, 1, 0, 1]),
+-    bpm=bpm,
+-    sample_speed=1.0,
++    bpm=presets[selected_preset]["bpm"],
++    tuning=presets[selected_preset]["hihat2"]["tuning"],
+     delay_is_on=Sig(0),
+     reverb_is_on=Sig(0),
+-    mixer=mixer
++    mixer=mixer,
++    sequencer=hihat2_sequencer,
+ ).play()
+ 
+ hihat3 = Events(
+@@ -72,31 +117,36 @@ hihat3 = Events(
+     beat=0.2,
+     amp=EventSeq([1, 1, 1, 1, 1]),
+     bpm=bpm,
+-    sample_speed=1.0,
++    tuning=presets[selected_preset]["hihat3"]["tuning"],
+     delay_is_on=Sig(0),
+     reverb_is_on=Sig(0),
+-    mixer=mixer
++    mixer=mixer,
++    sequencer=hihat3_sequencer
+ ).play()
+  
+ snare = Events(
+     instr=Snare,
+-    beat=0.5,
++    beat=1/presets[selected_preset]["snare"]["subdivision"],
+     amp=EventSeq([0, 0, 1, 0, 0, 0, 1, 0]), # amp = amplitude = volume
+-    bpm=bpm,
++    bpm=presets[selected_preset]["bpm"],
++    tuning=presets[selected_preset]["snare"]["tuning"],
+     delay_is_on=Sig(0),
+     reverb_is_on=Sig(0),
+-    mixer=mixer
++    mixer=mixer,
++    sequencer=snare_sequencer
+ ).play()
+ 
+ kick = Events(
+     instr=Kick,
+-    beat=0.5,
++    beat=presets[selected_preset]["hihat2"]["subdivision"],
+     amp=EventSeq([1, 0, 0, 0, 1, 0, 0, 0,
+                   1, 0, 0, 0, 1, 0, 0, 1]),
+-    bpm=bpm,
++    bpm=presets[selected_preset]["bpm"],
++    tuning=presets[selected_preset]["kick"]["tuning"],
+     delay_is_on=Sig(0),
+     reverb_is_on=Sig(0),
+-    mixer=mixer
++    mixer=mixer,
++    sequencer=kick_sequencer
+ ).play()
+ 
+ # not working yet
+@@ -125,38 +175,6 @@ main_volume_label = ctk.CTkLabel(main_control_bar, text='Volume')
+ wrapped_set_main_volume = partial(set_main_volume)
+ main_volume_slider = ctk.CTkSlider(main_control_bar, command=wrapped_set_main_volume, from_=60, to=200)
+ 
+-hihat1_frame = ctk.CTkFrame(root, width=1000, height=100)
+-hihat1_label = ctk.CTkLabel(hihat1_frame, text="Hihat 1", padx=10)
+-
+-hihat2_frame = ctk.CTkFrame(root, width=1000, height=100)
+-hihat2_label = ctk.CTkLabel(hihat2_frame, text="Hihat 2", padx=10)
+-
+-hihat3_frame = ctk.CTkFrame(root, width=1000, height=100)
+-hihat3_label = ctk.CTkLabel(hihat3_frame, text="Hihat 3", padx=10)
+-
+-snare_frame = ctk.CTkFrame(root, width=1000, height=100)
+-snare_label = ctk.CTkLabel(snare_frame, text="Snare", padx=10)
+-
+-kick_frame = ctk.CTkFrame(root, width=1000, height=100)
+-kick_label = ctk.CTkLabel(kick_frame, text="Kick", padx=10)
+-
+-# the steps of the sequencer are buttons 
+-# so that they can be clicked to turn them on and off
+-hihat1_sequencer = []
+-hihat2_sequencer = []
+-hihat3_sequencer = []
+-snare_sequencer = []
+-kick_sequencer = []
+-
+-for i in range(0, 16):
+-    hihat1_sequencer.append(ctk.CTkButton(hihat1_frame, text="0.5", width=hihat1_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
+-    hihat2_sequencer.append(ctk.CTkButton(hihat2_frame, text="0.5", width=hihat2_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
+-    hihat3_sequencer.append(ctk.CTkButton(hihat3_frame, text="0.5", width=hihat3_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
+-    snare_sequencer.append(ctk.CTkButton(snare_frame, text="0.5", width=snare_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
+-    kick_sequencer.append(ctk.CTkButton(kick_frame, text="0.5", width=kick_sequencer_button_width, height=SEQUENCER_BUTTON_HEIGHT))
+-
+-all_sequencers = [hihat1_sequencer, hihat2_sequencer, hihat3_sequencer, snare_sequencer, kick_sequencer]
+-
+ # hihat1 
+ hihat1_delay_button = ctk.CTkButton(hihat1_frame, text="Delay", width=PAD, height=2, fg_color="black")
+ hihat1_delay_toggle = partial(toggle_delay, button=hihat1_delay_button, instrument=hihat1)
+@@ -168,11 +186,11 @@ hihat1_reverb_button.configure(command=hihat1_reverb_toggle)
+ 
+ hihat1_subdivision_slider_label = ctk.CTkLabel(hihat1_frame, text='Subdivision')
+ hihat1_set_subdivision = partial(set_subdivision, instrument=hihat1)
+-hihat1_subdivision_slider = ctk.CTkSlider(hihat1_frame, command=hihat1_set_subdivision, from_=1, to=12)
++hihat1_subdivision_slider = ctk.CTkSlider(hihat1_frame, command=hihat1_set_subdivision, from_=1, to=12, width=SLIDER_WIDTH)
+ 
+ hihat1_tuning_slider_label = ctk.CTkLabel(hihat1_frame, text='Tuning')
+ hihat1_set_sample_speed = partial(set_sample_speed, instrument=hihat1)
+-hihat1_tuning_slider = ctk.CTkSlider(hihat1_frame, command=hihat1_set_sample_speed, from_=0.1, to=2.0)
++hihat1_tuning_slider = ctk.CTkSlider(hihat1_frame, command=hihat1_set_sample_speed, from_=0.1, to=2.0, width=SLIDER_WIDTH)
+ 
+ # hihat2
+ hihat2_delay_button = ctk.CTkButton(hihat2_frame, text="Delay", width=10, height=2, fg_color="black")
+@@ -185,12 +203,12 @@ hihat2_reverb_button.configure(command=hihat2_reverb_toggle)
+ 
+ hihat2_subdivision_slider_label = ctk.CTkLabel(hihat2_frame, text='Subdivision')
+ hihat2_set_subdivision = partial(set_subdivision, instrument=hihat2)
+-hihat2_subdivision_slider = ctk.CTkSlider(hihat2_frame, command=hihat2_set_subdivision, from_=1, to=12)
++hihat2_subdivision_slider = ctk.CTkSlider(hihat2_frame, command=hihat2_set_subdivision, from_=1, to=12, width=SLIDER_WIDTH)
+ hihat2_subdivision_slider.configure(command=hihat2_set_subdivision)
+ 
+ hihat2_tuning_slider_label = ctk.CTkLabel(hihat2_frame, text='Tuning')
+ hihat2_set_sample_speed = partial(set_sample_speed, instrument=hihat2)
+-hihat2_tuning_slider = ctk.CTkSlider(hihat2_frame, command=hihat2_set_sample_speed, from_=0.1, to=2.0)
++hihat2_tuning_slider = ctk.CTkSlider(hihat2_frame, command=hihat2_set_sample_speed, from_=0.1, to=2.0, width=SLIDER_WIDTH)
+ 
+ # hihat 3
+ hihat3_delay_button = ctk.CTkButton(hihat3_frame, text="Delay", width=10, height=2, fg_color="black")
+@@ -203,12 +221,12 @@ hihat3_reverb_button.configure(command=hihat3_reverb_toggle)
+ 
+ hihat3_subdivision_slider_label = ctk.CTkLabel(hihat3_frame, text='Subdivision')
+ hihat3_set_subdivision = partial(set_subdivision, instrument=hihat3)
+-hihat3_subdivision_slider = ctk.CTkSlider(hihat3_frame, command=hihat3_set_subdivision, from_=1, to=12)
++hihat3_subdivision_slider = ctk.CTkSlider(hihat3_frame, command=hihat3_set_subdivision, from_=1, to=12, width=SLIDER_WIDTH)
+ hihat3_subdivision_slider.configure(command=hihat3_set_subdivision)
+ 
+ hihat3_tuning_slider_label = ctk.CTkLabel(hihat3_frame, text='Tuning')
+ hihat3_set_sample_speed = partial(set_sample_speed, instrument=hihat3)
+-hihat3_tuning_slider = ctk.CTkSlider(hihat3_frame, command=hihat3_set_sample_speed, from_=0.1, to=2.0)
++hihat3_tuning_slider = ctk.CTkSlider(hihat3_frame, command=hihat3_set_sample_speed, from_=0.1, to=2.0, width=SLIDER_WIDTH)
+ 
+ # snare
+ snare_delay_button = ctk.CTkButton(snare_frame, text="Delay", width=10, height=2, fg_color="black")
+@@ -221,12 +239,12 @@ snare_reverb_button.configure(command=snare_reverb_toggle)
+ 
+ snare_subdivision_slider_label = ctk.CTkLabel(snare_frame, text='Subdivision')
+ snare_set_subdivision = partial(set_subdivision, instrument=snare)
+-snare_subdivision_slider = ctk.CTkSlider(snare_frame, command=snare_set_subdivision, from_=1, to=12)
++snare_subdivision_slider = ctk.CTkSlider(snare_frame, command=snare_set_subdivision, from_=1, to=12, width=SLIDER_WIDTH)
+ snare_subdivision_slider.configure(command=snare_set_subdivision)
+ 
+ snare_tuning_slider_label = ctk.CTkLabel(snare_frame, text='Tuning')
+ snare_set_sample_speed = partial(set_sample_speed, instrument=snare)
+-snare_tuning_slider = ctk.CTkSlider(snare_frame, command=snare_set_sample_speed, from_=0.1, to=2.0)
++snare_tuning_slider = ctk.CTkSlider(snare_frame, command=snare_set_sample_speed, from_=0.1, to=2.0, width=SLIDER_WIDTH)
+ 
+ # kick
+ kick_delay_button = ctk.CTkButton(kick_frame, text="Delay", width=10, height=2, fg_color="black")
+@@ -239,12 +257,12 @@ kick_reverb_button.configure(command=kick_reverb_toggle)
+ 
+ kick_subdivision_slider_label = ctk.CTkLabel(kick_frame, text='Subdivision')
+ kick_set_subdivision = partial(set_subdivision, instrument=kick)
+-kick_subdivision_slider = ctk.CTkSlider(kick_frame, command=kick_set_subdivision, from_=1, to=12)
++kick_subdivision_slider = ctk.CTkSlider(kick_frame, command=kick_set_subdivision, from_=1, to=12, width=SLIDER_WIDTH)
+ kick_subdivision_slider.configure(command=kick_set_subdivision)
+ 
+ kick_tuning_slider_label = ctk.CTkLabel(kick_frame, text='Tuning')
+ kick_set_sample_speed = partial(set_sample_speed, instrument=kick)
+-kick_tuning_slider = ctk.CTkSlider(kick_frame, command=kick_set_sample_speed, from_=0.1, to=2.0)
++kick_tuning_slider = ctk.CTkSlider(kick_frame, command=kick_set_sample_speed, from_=0.1, to=2.0, width=SLIDER_WIDTH)
+ 
+ # arrange gui elements
+ main_control_bar.grid(column=0, row=0, sticky="ew")
+@@ -303,14 +321,16 @@ kick_tuning_slider.grid(row=5, column=4)
+ kick_delay_button.grid(row=5, column=5)
+ kick_reverb_button.grid(row=5, column=6)
+ 
+-for i in range(0, 5):
+-    for j in range(0, 16):
+-        print(f"row {2*(i+1)} column {j}")
+-        all_sequencers[i][j].grid(row=2*(i+1), column=j)
++# for i in range(0, 5):
++#     for j in range(0, 16):
++#         # print(f"row {2*(i+1)} column {j}")
++#         all_sequencers[i][j].grid(row=2*(i+1), column=j)
+ 
+-root.mainloop()
++for j in range(0, 16):    
++    all_sequencers["hihat1"][j].grid(row=2, column=j)
++    all_sequencers["hihat2"][j].grid(row=4, column=j)
++    all_sequencers["hihat3"][j].grid(row=6, column=j)
++    all_sequencers["snare"][j].grid(row=8, column=j)
++    all_sequencers["kick"][j].grid(row=10, column=j)
+ 
+-"""
+-Goal: add rows 2, 4, 6, 8, 10
+-16 squares each, indexed 0-15
+-"""
+\ No newline at end of file
++root.mainloop()
+\ No newline at end of file
+diff --git a/drum-machine/settings.json b/drum-machine/settings.json
+index a9df466..9790370 100644
+--- a/drum-machine/settings.json
++++ b/drum-machine/settings.json
+@@ -1,5 +1,5 @@
+ {
+-    "take_number": 163,
++    "take_number": 190,
+     "presets": {
+         "1": {
+             "bpm": 120,

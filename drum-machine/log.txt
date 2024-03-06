@@ -1,4 +1,3 @@
 Pyo warning: Portaudio input device `MacBook Air Microphone` has fewer channels (1) than requested (2).
 Pyo warning: Portmidi warning: no midi device found!
 Portmidi closed.
-3

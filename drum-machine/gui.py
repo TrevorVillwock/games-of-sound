@@ -1,6 +1,4 @@
-import tkinter as tk
-import customtkinter as ctk
-from pyo import Server, Events, EventSeq
+from pyo import EventSeq
 from threading import Thread
 
 def set_bpm(bpm, instruments):
@@ -20,8 +18,8 @@ def set_main_volume():
 def set_subdivision(time, instrument):
     instrument["beat"] = EventSeq([1 / time])
     
-def set_sample_speed(speed, instrument):
-    instrument["sample_speed"] = EventSeq([speed])
+def set_sample_speed(tuning, instrument):
+    instrument["tuning"] = EventSeq([tuning])
 
 def toggle_reverb(button, instrument):
     # print(button)
@@ -56,3 +54,5 @@ def toggle_sequencer_step(button, instrument):
     else:
         button.configure(fg_color="purple")
         instrument["volume"].setValue(0)
+        
+
