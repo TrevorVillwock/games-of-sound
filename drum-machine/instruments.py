@@ -23,19 +23,26 @@ class HiHat(EventInstrument):
         except Exception as e:
             pass
         
-        try:
-            # print("Hihat constructor")
-            self.env = Fader(fadein=0.01, fadeout=0.1)
-            self.filt = ButLP(self.osc, freq=5000)
-            self.delay = SmoothDelay(self.filt, delay=0.7, feedback=0.7)
-            self.delay_selector = Selector([self.osc, self.delay], self.delay_is_on) 
-            self.reverb = Freeverb(self.delay_selector)
-            self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on).out()
-            self.mixer.addInput(0, self.reverb_selector)
-            self.current_step = 0
-            print(self.mixer)
-        except Exception as e:
-            pass
+        # try:
+        # print("Hihat constructor")
+        self.env = Fader(fadein=0.01, fadeout=0.1)
+        self.filt = ButLP(self.osc, freq=5000)
+        self.delay = SmoothDelay(self.filt, delay=0.7, feedback=0.7)
+        self.delay_selector = Selector([self.osc, self.delay], self.delay_is_on) 
+        self.reverb = Freeverb(self.delay_selector)
+        self.reverb_selector = Selector([self.delay_selector, self.reverb], self.reverb_is_on).out()
+        # self.mixer.addInput(0, self.reverb_selector)
+        self.step_count = 5
+        # args["sequencer"][args["step_count"]].fg_color = "gray"
+        # args["sequencer"][args["step_count"]] += 1
+        # args["sequencer"][args["step_count"]].fg_color = "blue"
+        print(self.delay_is_on)
+        print(self.sequencer[self.step_count])
+        # print(args["sequencer"])
+        # print(args["sequencer"][args["step_count"]])
+        # except Exception as e:
+            # print(e)
+            # pass
         
 class Snare(Instrument):
     def __init__(self, **args):

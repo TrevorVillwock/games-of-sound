@@ -80,6 +80,7 @@ for i in range(0, 16):
 sequencer_step_counts = {"hihat1": 0, "hihat2": 0, "hihat3": 0, "snare": 0, "kick": 0}
 
 def advance_sequencer(sequencer, sequencer_step_counts):
+    print("advancing sequencer")
     all_sequencers[sequencer][sequencer_step_counts[sequencer]].fg_color = "gray"
     sequencer_step_counts[sequencer] += 1
     all_sequencers[sequencer][sequencer_step_counts[sequencer]].fg_color = "blue"
@@ -96,8 +97,9 @@ hihat1 = Events(
     delay_is_on=Sig(0),
     reverb_is_on=Sig(0),
     mixer=mixer,
-    sequencer=hihat1_sequencer,
-    advance_sequencer=EventCall(advance_sequencer, "hihat1", sequencer_step_counts)
+    step_count=sequencer_step_counts["hihat1"],
+    sequencer=hihat1_sequencer
+    # advance_sequencer=EventCall(advance_sequencer, "hihat1", sequencer_step_counts)
 ).play()
 
 hihat2 = Events(
